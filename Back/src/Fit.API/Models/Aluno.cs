@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fit.API.Models
 {
@@ -16,6 +17,8 @@ namespace Fit.API.Models
         public string? NomeAluno { get;set;} 
         [Column(TypeName = "Date")]
         public DateTime DataNascimento { get; set; }
+        [Required]
+        public long Cpf { get; set; }
         [StringLength(3)]
         public string? TipoSanguineo { get; set; }
         public int Altura { get; set; }
