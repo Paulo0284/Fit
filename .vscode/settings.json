@@ -1,0 +1,3 @@
+{
+    "dotnet.defaultSolution": "Back/src/Fit.API/Fit.API.sln"
+}
