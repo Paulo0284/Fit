@@ -6,13 +6,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace Fit.API.Models
+namespace Fit.Domain.Models
 {
+    [Index(nameof(Cpf), IsUnique = true)]
+    [Index(nameof(Email), IsUnique = true)]
     public class Aluno
     {
         [Key]
         [DatabaseGenerated(databaseGeneratedOption: DatabaseGeneratedOption.Identity)]
-        public int IdAluno { get; set; }
+        public int Id { get; set; }
         [StringLength(200)]
         public string? NomeAluno { get;set;} 
         [Column(TypeName = "Date")]
@@ -24,7 +26,11 @@ namespace Fit.API.Models
         public int Altura { get; set; }
         public DateTime DataCadastro { get; set; }
         public string? FotoAluno {get; set; }
-
+        [StringLength(11)]
+        public string? Telefone {get; set;}
+        [StringLength(100)]
+        public string? Email { get; set; }
+        public IEnumerable<Treino>? Treinos {get; set;}
 
     }
 }

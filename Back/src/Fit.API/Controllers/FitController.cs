@@ -1,7 +1,6 @@
-using Fit.API.Data;
-using Fit.API.Models;
+using Fit.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Fit.Persistence.Contextos;
 
 namespace Fit.API.Controllers;
 
@@ -9,8 +8,8 @@ namespace Fit.API.Controllers;
 [Route("api/[controller]")]
 public class FitController : ControllerBase
 {
-    private readonly DataContext _contexto;
-   public FitController(DataContext context)
+    private readonly FitContext _contexto;
+   public FitController(FitContext context)
     {
             this._contexto = context;
 
@@ -25,7 +24,7 @@ public class FitController : ControllerBase
     [HttpGet("{id}")]
     public Aluno? Get(int id)
     {
-       return _contexto.Alunos.FirstOrDefault(alu => alu.IdAluno == id);
+       return _contexto.Alunos.FirstOrDefault(alu => alu.Id == id);
     }
 
     [HttpPost]

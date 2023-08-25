@@ -2,7 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Fit.API.Data;
+using Fit.Application;
+using Fit.Application.Contratos;
+using Fit.Persistence;
+using Fit.Persistence.Contextos;
+using Fit.Persistence.Contratos;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -28,21 +32,27 @@ namespace ProEventos.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DataContext>(
+            services.AddDbContext<FitContext>(
                 context => context.UseSqlite(Configuration.GetConnectionString("Default"))
             );
-            services.AddControllers();
+            services.AddControllers()
+                        .AddNewtonsoftJson(
+                            x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                        );
+            services.AddScoped<IAlunoService,AlunoService>();
+            services.AddScoped<IFitPersistence,FitPersistence>();
+            services.AddScoped<IAlunoPersistence,AlunoPersistence>();
            services.AddCors(options =>
-    {
-        options.AddPolicy("DevelopmentPolicy",
-            builder =>
             {
-                builder
-                    .AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader();
+                options.AddPolicy("DevelopmentPolicy",
+                    builder =>
+                    {
+                        builder
+                            .AllowAnyOrigin()
+                            .AllowAnyMethod()
+                            .AllowAnyHeader();
+                    });
             });
-    });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Fit.API", Version = "v1" });
