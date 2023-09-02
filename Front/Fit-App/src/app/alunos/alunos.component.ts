@@ -1,6 +1,12 @@
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, TemplateRef } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { AlunoService } from '../services/aluno.service';
+import { Aluno } from '../models/Aluno';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { ToastrService } from 'ngx-toastr';
+import { NgxSpinnerService } from 'ngx-spinner';
+
 
 
 @Component({
@@ -10,13 +16,20 @@ import { DatePipe } from '@angular/common';
 })
 
 export class AlunosComponent {
-  public alunos: any = [] ;
-  public alunosFiltrados: any = [];
-  exibirImagem: boolean = false;
+  public alunos: Aluno[] = [] ;
+  public alunosFiltrados: Aluno[] = [];
+  public exibirImagem: boolean = false;
   private _filtroLista:string = "";
+  modalRef?: BsModalRef;
 
 
-  constructor(private http: HttpClient,private datePipe: DatePipe){
+  constructor(
+    private alunoService: AlunoService,
+    private datePipe: DatePipe,
+    private modalService: BsModalService,
+    private toastr: ToastrService,
+    private spinner: NgxSpinnerService
+  ){
 
   }
 
@@ -30,29 +43,50 @@ export class AlunosComponent {
     this.alunosFiltrados = this.filtroLista ? this.filtrarAlunos(this.filtroLista) : this.alunos;
   }
 
-  filtrarAlunos(filtrarPor: string): any{
+  public filtrarAlunos(filtrarPor: string): Aluno[]{
       filtrarPor = filtrarPor.toLocaleLowerCase();
-      return this.alunos.filter((aluno: any) => aluno.nomeAluno.toLocaleLowerCase().indexOf(filtrarPor) !== -1 );
+      return this.alunos.filter((aluno: Aluno) => aluno.nomeAluno.toLocaleLowerCase().indexOf(filtrarPor) !== -1 );
   }
-ngOnInit(): void {
+public ngOnInit(): void {
   this.getAlunos();
 
  // console.log('Alunos: ', this.alunos);
+ this.spinner.show();
+
+ setTimeout(() => {
+   /** spinner ends after 5 seconds */
+   this.spinner.hide();
+ }, 5000);
 }
 
-exibirOcultarImagem(){
+public exibirOcultarImagem(): void {
   this.exibirImagem = !this.exibirImagem;
 }
 
   public getAlunos(): void {
-    this.http.get('https://localhost:7183/api/Fit').subscribe(
-      response => {this.alunos = response; this.alunosFiltrados = response;},
-      error => console.log(error)
-    );
+    const observer = {
+      next: (_alunos: Aluno[]) => {this.alunos = _alunos; this.alunosFiltrados = _alunos;},
+      error: (error: any) => console.log(error)
+
+    };
+    this.alunoService.getAlunos().subscribe(observer);
   }
 
   public formatarData(dData:any){
     return this.datePipe.transform(dData,"dd/MM/yyyy");
+  }
+
+  public openModal(template: TemplateRef<any>) {
+    this.modalRef = this.modalService.show(template, {class: 'modal-sm'});
+  }
+
+  public confirm(): void {
+    this.modalRef?.hide();
+    this.toastr.success('O aluno foi excluído!', 'Deletado!');
+  }
+
+  public decline(): void {
+    this.modalRef?.hide();
   }
 
 }
